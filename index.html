@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Game</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+</head>
+<body>
+	<div id = "board"style="width: 300px;height: 300px;display: flex;flex-wrap: wrap;">
+		<div class="card" id="0"style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="1" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="2" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="3" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="4" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="5" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="6" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="7" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="8" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="9" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="10" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="11" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="12" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="13" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="14" style="border:1px solid black; width: 70px;height: 70px;"></div>
+		<div class="card" id="15" style="border:1px solid black; width: 70px;height: 70px;"></div>
+	</div>
+	<div>
+		<button onclick="game.start()">start</button>
+		<div class="timer">00:00.000</div>
+	</div>
+	<script>
+		var game = {
+			//Запущенна ли игра
+			started:false,
+			//Последнее открытое поле
+			lastCard: false,
+			//Всего открыто полей
+			opened: 0,
+			//Возможные цвета полей (должно быть в 2 раза меньше чем кол-во полей)
+			colors:['red','blue','green','orange','yellow','deeppink','aqua','darkmagenta'],
+			//html коллекция полей
+			cards: document.getElementsByClassName('card'),
+			//id's полей и их цвета
+			cardColors:{},
+
+			start:function(){
+				if(this.started){
+					return
+				}
+				let ids = []
+				let arr = []
+				let i = 0
+
+				//Заполняем массив индексами полей и рандомными цветами
+				while(ids.length < this.cards.length){
+					let max = Math.floor(Math.random() * this.cards.length);
+
+				    if (ids.indexOf(max) == -1) {
+				        ids.push(max);
+
+				        if(i>=this.colors.length){
+				        	i -= this.colors.length
+				        }
+
+				        this.cardColors[max] = this.colors[i]
+				        i++
+				        
+			    	}
+			    	
+				}
+
+
+				document.getElementById("board").addEventListener("click", (event)=> {
+				    var color = this.cardColors[event.target.id]
+
+				    //Закрашиваем поле
+				    if(color && !document.getElementById(event.target.id).style.background){
+				    	document.getElementById(event.target.id).style.background = color
+				    }else{
+				    	return
+				    }
+				    
+				    //Проверяем совпадает ли цвет предыдущего поля с текущим 
+				    if (!this.lastCard) {
+				    	this.lastCard = document.getElementById(event.target.id)
+				        
+				    }else if(this.lastCard.style.background == color){
+				    	this.lastCard = false
+				    	this.opened += 2
+
+				    	if(this.opened >= this.cards.length){
+				    		this.opened = 0
+
+				    		let time = document.getElementsByClassName('timer')[0].innerText
+				    		alert(`Вы выиграли! \nЗатраченное время : ${time}`)
+
+				    		for(let card of document.getElementsByClassName('card')){
+				    			card.style.background = ""
+				    		}
+
+				    		this.started = false
+				    		this.timer.stop()
+
+				    		return
+				    	}
+				    }else{
+				    	let card = this.lastCard
+				    	this.lastCard = false
+
+				    	//Закрашиваем поля обратно в белый
+				    	setTimeout(()=>{
+				    		card.style.background = ''
+				    		
+			    			document.getElementById(event.target.id).style.background = ''
+				    	},500)
+			    		
+
+				    }
+
+				});
+
+				this.timer.start()
+				this.started = true
+			}
+			timer: {
+				start:function(){ 
+					var time = moment('00:00.000','mm:ss.SSS')
+
+					this.timerId=setInterval(function(){
+			  			time.add(1,'milliseconds')
+					   	document.getElementsByClassName('timer')[0].innerText = time.format('mm:ss.SSS')
+
+					}, 1);
+				},
+				stop:function(){
+					clearInterval(this.timerId)
+				}
+			}
+		}
+	</script>
+</body>
+</html>
